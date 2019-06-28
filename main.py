@@ -5,9 +5,13 @@ import re
 import nltk.corpus
 import sklearn
 import numpy as np
-from sklearn import metrics
 import sys
 import matplotlib.pyplot as pyplot
+from nltk.classify.scikitlearn import SklearnClassifier
+from sklearn.naive_bayes import MultinomialNB,BernoulliNB
+from sklearn.linear_model import LogisticRegression,SGDClassifier
+from sklearn.svm import SVC, LinearSVC, NuSVC
+from sklearn import metrics
 
 csvFileTrain = "data/train_data.csv"
 
@@ -53,44 +57,68 @@ from sklearn.model_selection import ShuffleSplit
 ss = ShuffleSplit(n_splits=30, test_size=0.2,
      random_state=0)
 splitDivision = ss.split(X_TFIDF)
-index_train = []
-index_test = []
+
+accuracy = []
+precision = []
+recall = []
+
 for train_index, test_index in splitDivision:
-     #print("%s %s" % (train_index, test_index))
-     index_train.append(train_index)
-     index_test.append(test_index)
+    #print("%s %s" % (train_index, test_index))
+    labels = np.array(labels)
+    x_train = X_TFIDF[train_index]
+    y_train = labels[train_index]
+    x_test = X_TFIDF[test_index]
+    y_test = labels[test_index]
 
-labels = np.array(labels)
-x_train = X_TFIDF[index_train[0]]
-y_train = labels[index_train[0]]
-x_test = X_TFIDF[index_test[0]]
-y_test = labels[index_test[0]]
+    clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr')
+    #clf = MultinomialNB()
+    #clf = LinearSVC()
+    #clf = BernoulliNB()
+    #clf = SGDClassifier()
+    #clf = SVC()
+    #clf = LinearSVC()
+    #clf = NuSVC()
 
-from sklearn.linear_model import LogisticRegression
-from sklearn import metrics
+    clf.fit(x_train,y_train)
+    y_pred = clf.predict(x_test)
 
-clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr')
-clf.fit(x_train,y_train)
-y_pred = clf.predict(x_test)
+    print(y_pred)
+    print(y_test)
 
-print(y_pred)
-print(y_test)
+    acc = metrics.accuracy_score(y_test, y_pred)
+    prec = metrics.precision_score(y_test, y_pred, average=None)
+    rec = metrics.recall_score(y_test, y_pred, average=None)
+    mc = sklearn.metrics.confusion_matrix(y_test, y_pred)
+    g=0
+    somaP = 0
+    somaR = 0
+    while(g<len(prec)):
+        somaP = somaP + prec[g]
+        somaR = somaR + rec[g]
+        g=g+1
+    precTotal = (somaP/len(prec))
+    recTotal = (somaR/len(prec))
 
-acc = metrics.accuracy_score(y_test, y_pred)
-prec = metrics.precision_score(y_test, y_pred, average=None)
-rec = metrics.recall_score(y_test, y_pred, average=None)
-mc = sklearn.metrics.confusion_matrix(y_test, y_pred)
-g=0
-somaP = 0
-somaR = 0
-while(g<len(prec)):
-    somaP = somaP + prec[g]
-    somaR = somaR + rec[g]
-    g=g+1
-precTotal = (somaP/len(prec))
-recTotal = (somaR/len(prec))
+    accuracy.append(acc)
+    precision.append(precTotal)
+    recall.append(recTotal)
 
-print(acc)
-print(precTotal)
-print(recTotal)
-print(mc)
+experimento = "exp01"
+
+path = "resultados/"+experimento+".csv"
+with open(path, "w") as csv_file:
+        writer = csv.writer(csv_file, delimiter=';')
+        writer.writerow(['execution', 'accuracy', 'precision', 'recall'])
+        for i in range(30):
+            writer.writerow([i, accuracy[i], precision[i], recall[i]])
+
+
+fig2, ax2 = plt.subplots()
+ax2.set_title('Métricas')
+red_square = dict(markerfacecolor='r', marker='s')
+ax2.boxplot([accuracy,precision, recall], notch=False, vert=True)
+ax2.set_xticklabels(['Accuracy', 'Precision', 'Recall'])
+#plt.xlabel("Métricas")
+#plt.ylabel("Valor")
+plt.savefig("Resultados/"+experimento+".png")
+plt.show()
