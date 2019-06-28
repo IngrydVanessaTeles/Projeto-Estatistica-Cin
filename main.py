@@ -12,6 +12,7 @@ from sklearn.naive_bayes import MultinomialNB,BernoulliNB
 from sklearn.linear_model import LogisticRegression,SGDClassifier
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn import metrics
+import statistics
 
 csvFileTrain = "data/train_data.csv"
 
@@ -111,7 +112,9 @@ with open(path, "w") as csv_file:
         writer.writerow(['execution', 'accuracy', 'precision', 'recall'])
         for i in range(30):
             writer.writerow([i, accuracy[i], precision[i], recall[i]])
-
+        writer.writerow(["media", statistics.mean(accuracy), statistics.mean(precision), statistics.mean(recall)])
+        writer.writerow(["desvio padrao", statistics.stdev(accuracy), statistics.stdev(precision), statistics.stdev(recall)])
+        writer.writerow(["mediana", statistics.median(accuracy), statistics.median(precision), statistics.median(recall)])
 
 fig2, ax2 = plt.subplots()
 ax2.set_title('Métricas')
