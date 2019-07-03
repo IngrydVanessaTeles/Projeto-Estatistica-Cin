@@ -2,6 +2,7 @@ import csv
 import nltk
 import re
 from PIL import Image
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from nltk.stem import WordNetLemmatizer
@@ -11,14 +12,34 @@ stemmer = SnowballStemmer("english", ignore_stopwords=True) #se não ignorar os 
 #inicializando bag de stopwords
 stopwords = nltk.corpus.stopwords.words('english')
 
+def preProcessamento(dataPanda):
+    data = dataPanda
+    for i in tqdm(range(len(data.text))):
+        temp1 = data.text[i]
+        temp1 = temp1.split()
+        temp3 = []
+        # aplica steammer
+        for u in range(len(temp1)):
+            # temp1[u] = stemmer.stem(temp1[u])
+            temp1[u] = lemmatizer.lemmatize(temp1[u])
+            if (temp1[u] in stopwords):
+                temp3.append(temp1[u])
+        temp1 = " ".join(temp1)
+        # remove stopwords
+        if (len(temp3) > 0):
+            for u in temp3:
+                temp1 = temp1.replace(u, "")
+        # filtering
+        temp1 = re.sub('[^A-Za-z]+', ' ', temp1)
+        data.text[i] = temp1
+    return data
+
+
 def readBase(csvFile):
     labels = []
     base = []
-    listaPorEmocao = {'anger':"", 'boredom':"", 'empty':"", 'enthusiasm':"", 'fun':"", 'happiness':"",
-                      'hate':"", 'love':"", 'neutral':"", 'relief':"", 'sadness':"", 'sentiment':"", 'surprise':"", 'worry':""}
-    qtdEmocao = {'anger': 0, 'boredom': 0, 'empty': 0, 'enthusiasm': 0, 'fun': 0, 'happiness': 0,
-                      'hate': 0, 'love': 0, 'neutral': 0, 'relief': 0, 'sadness': 0, 'sentiment': 0,
-                      'surprise': 0, 'worry': 0}
+    listaPorEmocao = {'positive':"", 'negative':"", 'neutral':""}
+    qtdEmocao = {'positive': 0, 'negative': 0, 'neutral': 0}
     with open(csvFile) as csvfile:
         import codecs
         ifile = open(csvFile, "rb")
@@ -26,10 +47,10 @@ def readBase(csvFile):
 
         for row in read:
             try:
-                temp2 = str(row[0])
+                temp2 = str(row[1])
                 labels.append(temp2)
 
-                temp1 = str(row[1])
+                temp1 = str(row[10])
 
                 temp1 = temp1.split()
                 temp3 = []
