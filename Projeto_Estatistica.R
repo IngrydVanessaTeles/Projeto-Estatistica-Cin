@@ -1,80 +1,76 @@
 require(caret)
 require(MASS)
 
-setwd("C:\\Users\\apaf.lincs-PC\\Desktop\\Projeto-Estatistica-Cins")
-exe1 <- read.csv("exp01.csv", header = TRUE, sep = ";")
-exe3 <- read.csv("exp03.csv", header = TRUE, sep = ";")
-exe4 <- read.csv("exp04.csv", header = TRUE, sep = ";")
-exe2 <- read.csv("exp02.csv", header = TRUE, sep = ";")
+setwd("C:\\Users\\apaf.lincs-PC\\Desktop\\Projeto-Estatistica-Cin")
+exe1 <- read.csv(".\\resultados\\exp01.csv", header = TRUE, sep = ";")
+exe2 <- read.csv(".\\resultados\\exp02.csv", header = TRUE, sep = ";")
+exe3 <- read.csv(".\\resultados\\exp03.csv", header = TRUE, sep = ";")
+exe4 <- read.csv(".\\resultados\\exp04.csv", header = TRUE, sep = ";")
 
 #1=LOGISTICA
 #2=SVM
 #3=MultinomialNB
 #4=SGD
 
-acuracia1 = exe1$accuracy
-acuracia3 = exe3$accuracy
-acuracia4 = exe4$accuracy
-acuracia2 = exe2$accuracy
+accLR = exe1$accuracy
+accSVM = exe2$accuracy
+accMNB = exe3$accuracy
+accSGD = exe4$accuracy
 
-precisao1 = exe1$precision
-precisao3 = exe3$precision
-precisao4 = exe4$precision
-precisao2 = exe2$precision
+precLR = exe1$precision
+precSVM = exe3$precision
+precMNB = exe4$precision
+precSGD = exe2$precision
   
-Recall1 = exe1$recall
-Recall3 = exe3$recall
-Recall4 = exe4$recall
-Recall2 = exe2$recall
+recLR = exe1$recall
+recSVM = exe2$recall
+recMNB = exe3$recall
+recSGD = exe4$recall
 
-AcuraciaMedia1=mean(acuracia1)
-AcuraciaDesvio1=sd(acuracia1)
+MedAccLR = mean(accLR)
+SDAccLR  =sd(accLR)
 
-AcuraciaMedia5=mean(acuracia2)
-AcuraciaDesvio5=sd(acuracia2)
+MedAccSVM = mean(accSVM)
+SDAccSVM = sd(accSVM)
 
-AcuraciaMedia3=mean(acuracia3)
-AcuraciaDesvio3=sd(acuracia3)
+MedAccMNB = mean(accMNB)
+SDAccMNB = sd(accMNB)
 
-AcuraciaMedia4=mean(acuracia4)
-AcuraciaDesvio4=sd(acuracia4)
+MedAccSGD = mean(accSGD)
+SDAccSGD = sd(accSGD)
 
 #intervalo de confianca
-t.test(acuracia1) 
-t.test(acuracia2) 
-t.test(acuracia3) 
-t.test(acuracia4) 
+t.test(accLR) 
+t.test(accSVM) 
+t.test(accMNB) 
+t.test(accSGD) 
 
 #normalidade
-ks.test(acuracia1,'pnorm')
-ks.test(acuracia2,'pnorm')
-ks.test(acuracia3,'pnorm')
-ks.test(acuracia4,'pnorm')
+ks.test(accLR, "pnorm", mean(accLR), sd(accLR))
+ks.test(accSVM, "pnorm", mean(accSVM), sd(accSVM))
+ks.test(accMNB, "pnorm", mean(accMNB), sd(accMNB))
+ks.test(accSGD, "pnorm", mean(accSGD), sd(accSGD))
 
 #histograma
-hist(acuracia1)
-hist(acuracia2)
-hist(acuracia3)
-hist(acuracia4)
+hist(accLR)
+hist(accSVM)
+hist(accMNB)
+hist(accSGD)
 #hist(h)
 
-hist(acuracia1)
-hist(acuracia2)
-hist(acuracia4)
 
 #Teste Wilcoxon
-wilcox.test(acuracia1,acuracia2, alternative = 'two.sided', paired = T) 
-wilcox.test(acuracia1,acuracia4, alternative = 'two.sided', paired = T) 
-wilcox.test(acuracia2,acuracia4, alternative = 'two.sided', paired = T) 
+t.test(accLR, accSVM, paired = TRUE, alternative = "two.sided")
+t.test(accLR, accSGD, paired = TRUE, alternative = "two.sided")
+t.test(accSVM, accSGD, paired = TRUE, alternative = "two.sided")
 
-wilcox.test(acuracia4,acuracia1, alternative = 'less', paired = T) 
-wilcox.test(acuracia4,acuracia2, alternative = 'less', paired = T) 
-wilcox.test(acuracia2,acuracia1, alternative = 'less', paired = T) 
+t.test(accLR, accSVM, paired = TRUE, alternative = "greater")
+t.test(accLR, accSGD, paired = TRUE, alternative = "greater")
+t.test(accSVM, accSGD, paired = TRUE, alternative = "greater")
 
-wilcox.test(acuracia4,acuracia1, alternative = 'greater', paired = T) 
-wilcox.test(acuracia4,acuracia2, alternative = 'greater', paired = T) 
-wilcox.test(acuracia2,acuracia1, alternative = 'greater', paired = T)
-
+t.test(accLR, accSVM, paired = TRUE, alternative = "less")
+t.test(accLR, accSGD, paired = TRUE, alternative = "less")
+t.test(accSVM, accSGD, paired = TRUE, alternative = "less")
 
 
 n_reps = 30
@@ -82,8 +78,8 @@ sample_size = 3
 res_list = list()
 
 for (i in 1:30) {
-  amostra = sample(acuracia1, 3, replace = FALSE)
-  h.sample = as.data.frame(sample(acuracia1, sample_size))
+  amostra = sample(accLR, 3, replace = FALSE)
+  h.sample = as.data.frame(sample(accLR, sample_size))
   res_list[[i]] = t.test(h.sample, mu=AcuraciaMedia1)
 }
 
