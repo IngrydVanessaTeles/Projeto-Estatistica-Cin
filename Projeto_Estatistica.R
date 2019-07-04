@@ -18,9 +18,9 @@ accMNB = exe3$accuracy
 accSGD = exe4$accuracy
 
 precLR = exe1$precision
-precSVM = exe3$precision
-precMNB = exe4$precision
-precSGD = exe2$precision
+precSVM = exe2$precision
+precMNB = exe3$precision
+precSGD = exe4$precision
   
 recLR = exe1$recall
 recSVM = exe2$recall
@@ -28,7 +28,7 @@ recMNB = exe3$recall
 recSGD = exe4$recall
 
 MedAccLR = mean(accLR)
-SDAccLR  =sd(accLR)
+SDAccLR  = sd(accLR)
 
 MedAccSVM = mean(accSVM)
 SDAccSVM = sd(accSVM)
